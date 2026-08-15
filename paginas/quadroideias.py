@@ -37,6 +37,7 @@ def render_quadro_ideias(conn, cursor):
                COALESCE(telefone, '') as telefone, 
                descricao, 
                COALESCE(referencia_link, '') as referencia_link, 
+               COALESCE(imagem, '') as imagem,
                COALESCE(prioridade, 'Média') as prioridade, 
                COALESCE(status, '🟡 Procurando STL') as status, 
                COALESCE(observacoes, '') as observacoes, 
@@ -53,7 +54,7 @@ def render_quadro_ideias(conn, cursor):
 
     # Exibe cada ideia
     for item in ideias:
-        i_id, cli_nome, fone, desc, ref, prio, status, obs, data = item
+        i_id, cli_nome, fone, desc, ref, imagem, prio, status, obs, data = item
 
         with st.container(border=True):
             c1, c2, c3 = st.columns([2, 1, 1])
@@ -62,6 +63,8 @@ def render_quadro_ideias(conn, cursor):
                 st.markdown(f"### #{i_id} - {cli_nome}")
                 st.write(f"📞 **Telefone:** {fone or 'Não informado'}")
                 st.write(f"📝 **Solicitação:** {desc}")
+                if imagem:
+                    st.image(imagem, width=200, caption="Foto enviada pelo cliente")
                 if ref:
                     st.markdown(f"🔗 [Link de Referência]({ref})")
                 st.caption(f"📅 Data: {data[:10] if data else 'N/A'}")
