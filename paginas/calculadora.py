@@ -53,6 +53,11 @@ def render_calculadora(conn, cursor):
     v_c_mat = (peso_g / 1000.0) * preco_filamento_kg
     v_c_maq = horas_impressao * custo_hora_maquina
     v_calc = (v_c_mat + v_c_maq) * (1.0 + (margem_lucro / 100.0))
+
+    res1, res2 = st.columns(2)
+    res1.write(f"📊 **Custo de Produção:** R$ {(v_c_mat + v_c_maq):.2f}")
+    res2.write(f"💰 **Preço de Venda Sugerido:** R$ {v_calc:.2f}")
+
     preco_avulso_negociado = st.number_input(
         "Preço Final Ajustado (R$)*",
         min_value=0.0,
