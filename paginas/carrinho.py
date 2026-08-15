@@ -26,11 +26,11 @@ def carregar_imagem_peca(img_input):
 
 
 def gerar_imagem_orcamento(
-    cliente, telefone, endereco, carrinho, subtotal_peso, subtotal_tempo, ajuste, total_final
+    cliente, telefone, endereco, carrinho, subtotal_peso, subtotal_tempo, total_final
 ):
     # Formato Portrait (vertical)
     largura = 420
-    altura_base = 380  # ↓ Aumentado para caber Telefone e Endereço
+    altura_base = 380
     altura_itens = sum(70 if item.get("imagem") else 55 for item in carrinho)
     altura = max(altura_base + altura_itens, int(largura * 1.5))
 
@@ -67,15 +67,12 @@ def gerar_imagem_orcamento(
     nome_cli = cliente.strip() if cliente and cliente.strip() else "Não informado"
     draw.text((x_offset, 50), f"Cliente: {nome_cli}", fill=(0, 180, 255), font=fonte_sub)
 
-    # ✅ TELEFONE NA IMAGEM DO ORÇAMENTO
     tel_cli = telefone.strip() if telefone and telefone.strip() else "Não informado"
     draw.text((x_offset, 72), f"Telefone: {tel_cli}", fill=(180, 220, 255), font=fonte_texto)
 
-    # ✅ ENDEREÇO NA IMAGEM DO ORÇAMENTO (quebrando linha se precisar)
     end_cli = endereco.strip() if endereco and endereco.strip() else "Não informado"
     draw.text((x_offset, 92), "Endereço:", fill=(160, 170, 190), font=fonte_texto)
     y_end = 112
-    max_linhas_end = 3
     largura_max = 300
     palavras = end_cli.split()
     linha_atual = ""
@@ -129,10 +126,6 @@ def gerar_imagem_orcamento(
     draw.line([(25, y), (largura - 25, y)], fill=(60, 70, 90), width=1)
     y += 15
 
-    if ajuste != 0:
-        draw.text((25, y), f"Ajuste / Taxa: R$ {ajuste:+.2f}", fill=(255, 190, 0), font=fonte_texto)
-        y += 22
-
     draw.text((25, y), f"Totais: {subtotal_peso:.0f}g  |  {subtotal_tempo:.1f}h de máquina",
               fill=(170, 180, 200), font=fonte_texto)
     y += 26
@@ -148,7 +141,8 @@ def gerar_imagem_orcamento(
 
 def render_carrinho(conn, cursor):
     """Página pública do carrinho — mostra só o que o cliente adicionou
-    (pelo catálogo) e permite finalizar o pedido com Nome, Telefone e Endereço."""
+    e permite finalizar o pedido com Nome, Telefone e Endereço.
+    Sem campo de ajuste de valor (isso é interno, não do cliente)."""
     st.title("🛒 Seu Carrinho")
 
     if "carrinho" not in st.session_state:
@@ -190,14 +184,7 @@ def render_carrinho(conn, cursor):
 
     st.divider()
 
-    ajuste_global = st.number_input(
-        "Ajuste no Pedido (R$) (+ para Taxa / - para Desconto):",
-        value=0.0,
-        step=5.0,
-        key="carrinho_ajuste_pedido",
-    )
-
-    total_final_pedido = max(0.0, subtotal_valor + ajuste_global)
+    total_final_pedido = subtotal_valor
 
     st.metric(
         "Total Final do Pedido",
@@ -205,7 +192,6 @@ def render_carrinho(conn, cursor):
         delta=f"{subtotal_peso:.0f}g | {subtotal_tempo:.1f}h total",
     )
 
-    # ✅ DADOS DO CLIENTE — AGORA COM TELEFONE E ENDEREÇO
     st.subheader("Seus Dados")
     cursor.execute("SELECT nome FROM clientes ORDER BY nome ASC")
     clientes_cadastrados = [c[0] for c in cursor.fetchall()]
@@ -221,14 +207,12 @@ def render_carrinho(conn, cursor):
     else:
         cliente_final = st.text_input("Nome do Cliente*", value="", placeholder="Digite seu nome completo")
 
-    # ✅ NOVOS CAMPOS — TELEFONE E ENDEREÇO
     telefone_final = st.text_input("WhatsApp / Telefone*", value="", placeholder="(XX) XXXXX-XXXX")
     endereco_final = st.text_area("Endereço para Entrega*", value="",
                                    placeholder="Rua, Número, Bairro, Cidade/UF, CEP")
 
     st.write("---")
 
-    # ✅ BOTÃO DE GERAR IMAGEM — AGORA COM TELEFONE E ENDEREÇO
     if st.button("🖼️ Gerar/Atualizar Imagem do Orçamento", use_container_width=True, key="carrinho_gerar_imagem"):
         if not cliente_final.strip():
             st.warning("⚠️ Digite o Nome do Cliente antes de gerar o orçamento.")
@@ -240,7 +224,6 @@ def render_carrinho(conn, cursor):
                 st.session_state.carrinho,
                 subtotal_peso,
                 subtotal_tempo,
-                ajuste_global,
                 total_final_pedido,
             )
             st.session_state["buf_orcamento"] = buf_img.getvalue()
@@ -268,14 +251,12 @@ def render_carrinho(conn, cursor):
 
     st.write("---")
 
-    # ✅ FINALIZAR PEDIDO — SALVA TELEFONE E ENDEREÇO NO BANCO + VALIDAÇÃO
     if st.button(
         "📜 Finalizar e Criar Pedido",
         type="primary",
         use_container_width=True,
         key="carrinho_finalizar_pedido",
     ):
-        # ✅ VALIDAÇÃO COMPLETA DOS 3 CAMPOS
         nome_ok = bool(cliente_final.strip())
         tel_ok = bool(telefone_final.strip())
         end_ok = bool(endereco_final.strip())
@@ -290,12 +271,9 @@ def render_carrinho(conn, cursor):
             resumo_pecas = " + ".join([
                 item["nome"] for item in st.session_state.carrinho
             ])
-            if ajuste_global != 0:
-                resumo_pecas += f" (Ajuste: R$ {ajuste_global:+.2f})"
 
             primeiro_material_id = st.session_state.carrinho[0]["material_id"]
 
-            # ✅ INSERE COM TELEFONE E ENDEREÇO
             cursor.execute(
                 """
                 INSERT INTO pedidos (
