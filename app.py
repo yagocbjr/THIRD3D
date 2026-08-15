@@ -133,10 +133,6 @@ css_estilo = """
 
 /* ✅ RESPONSIVIDADE PARA CELULAR 📱 */
 @media (max-width: 768px) {
-    section[data-testid="stSidebar"] {
-        width: 100% !important;
-        position: relative !important;
-    }
     div[data-testid="column"] {
         width: 100% !important;
         display: block !important;
@@ -370,8 +366,8 @@ def formatar_nome_material(m_id, marca_nome, cor, tipo, nome_antigo=None):
 # --- NAVEGAÇÃO ---
 st.sidebar.divider()
 
-# ✅ IMPRESSORIAS REMOVIDA DA LISTA
-PAGINAS_ADMIN = {"Dashboard", "Faturamento", "Clientes", "Estoque de Filamentos", "Fila de Pedidos", "Gerenciar Catalogo", "Calculadora"}
+# ✅ IMPRESSORIAS REMOVIDA DA LISTA — QuadroIdeias adicionada (estava faltando)
+PAGINAS_ADMIN = {"Dashboard", "Faturamento", "Clientes", "Estoque de Filamentos", "Fila de Pedidos", "Gerenciar Catalogo", "Calculadora", "QuadroIdeias"}
 aba = st.session_state.get("pagina_atual", "Catalogo de Pecas")
 
 estilo_menu = """
@@ -409,7 +405,6 @@ if st.session_state.get("logado"):
     if st.sidebar.button("Faturamento", use_container_width=True, key="menu_faturamento"):
         aba = "Faturamento"
         st.session_state.pagina_atual = aba
-    # ✅ BOTÃO IMPRESSORIAS REMOVIDO
     if st.sidebar.button("Clientes", use_container_width=True, key="menu_clientes"):
         aba = "Clientes"
         st.session_state.pagina_atual = aba
@@ -452,7 +447,6 @@ elif aba == "Faturamento":
     render_faturamento(conn, cursor)
 elif aba == "Ideias Personalizadas":
     render_encomendas(conn, cursor)
-# ✅ IMPRESSORIAS REMOVIDA DO ROTEAMENTO
 elif aba == "Clientes":
     render_clientes(conn, cursor)
 elif aba == "Estoque de Filamentos":
