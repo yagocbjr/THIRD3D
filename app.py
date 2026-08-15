@@ -26,7 +26,7 @@ from paginas.estoque import render_estoque
 from paginas.pedidos import render_pedidos
 from paginas.quadroideias import render_quadro_ideias
 
-# ✅ IMPRESSORAS REMOVIDA — conforme solicitado
+# ✅ IMPRESSORIAS REMOVIDA — conforme solicitado
 
 # ✅ ESCONDE A BARRA
 st.markdown("""
@@ -130,6 +130,28 @@ css_estilo = """
     background-attachment: fixed;
     background-size: cover;
 }
+
+/* ✅ RESPONSIVIDADE PARA CELULAR 📱 */
+@media (max-width: 768px) {
+    section[data-testid="stSidebar"] {
+        width: 100% !important;
+        position: relative !important;
+    }
+    div[data-testid="column"] {
+        width: 100% !important;
+        display: block !important;
+        margin-bottom: 1rem !important;
+    }
+    div.stButton > button {
+        font-size: 16px !important;
+        padding: 12px 8px !important;
+    }
+    div[data-testid="stImage"] > img {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+}
+
 section[data-testid="stSidebar"] {
     background: rgba(255, 255, 255, 0.06);
     backdrop-filter: blur(24px) saturate(180%);
@@ -256,6 +278,16 @@ def inicializar_banco():
         conn.commit()
     except Exception: pass
 
+    # ✅ ADICIONA TELEFONE E ENDEREÇO NA TABELA PEDIDOS
+    try:
+        cursor.execute("ALTER TABLE pedidos ADD COLUMN telefone TEXT")
+        conn.commit()
+    except Exception: pass
+    try:
+        cursor.execute("ALTER TABLE pedidos ADD COLUMN endereco TEXT")
+        conn.commit()
+    except Exception: pass
+
     try: cursor.execute("ALTER TABLE materiais ADD COLUMN marca_id INTEGER")
     except sqlite3.OperationalError: pass
     try: cursor.execute("ALTER TABLE materiais ADD COLUMN cor TEXT DEFAULT ''")
@@ -296,9 +328,16 @@ def inicializar_banco():
     )""")
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS pedidos (
-        id INTEGER PRIMARY KEY AUTOINCREMENT, cliente TEXT NOT NULL,
-        nome_peca TEXT NOT NULL, material_id INTEGER, peso_g REAL NOT NULL,
-        tempo_h REAL NOT NULL, valor_total REAL NOT NULL, status TEXT NOT NULL,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        cliente TEXT NOT NULL,
+        telefone TEXT,
+        endereco TEXT,
+        nome_peca TEXT NOT NULL,
+        material_id INTEGER,
+        peso_g REAL NOT NULL,
+        tempo_h REAL NOT NULL,
+        valor_total REAL NOT NULL,
+        status TEXT NOT NULL,
         estoque_baixado INTEGER DEFAULT 0,
         data_criado DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (material_id) REFERENCES materiais (id)
