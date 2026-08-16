@@ -11,7 +11,7 @@ st.subheader("Peças sob medida e produção local")
 
 col1, col2 = st.columns([2,1])
 with col1:
-    st.image("https://via.placeholder.com/900x300.png?text=Hero+THIRD3D", use_column_width=True)
+    st.image("https://via.placeholder.com/900x300.png?text=Hero+THIRD3D", use_container_width=True)
     st.markdown("#### Quem somos\nProduzimos peças em 3D com atenção aos detalhes. Prazo médio de entrega: 3–7 dias úteis.")
 
 with col2:
@@ -28,7 +28,7 @@ st.header("Peças em destaque")
 cols = st.columns(4)
 for i, c in enumerate(cols):
     with c:
-        st.image("https://via.placeholder.com/300.png?text=Produto+%d" % (i+1))
+        st.image("https://via.placeholder.com/300.png?text=Produto+%d" % (i+1), use_container_width=True)
         st.markdown(f"**Produto {i+1}**\n\nR$ 45,00")
 
 st.markdown("\n\n")
