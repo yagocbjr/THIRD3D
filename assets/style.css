@@ -1,0 +1,29 @@
+/* style.css - estilos mínimos */
+body {
+  font-family: 'Arial', sans-serif;
+}
+.card {
+  border: 1px solid #e6e6e6;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.03);
+  margin-bottom: 8px;
+}
+.badge {
+  background: #ffdd57;
+  color: #333;
+  padding: 4px 8px;
+  border-radius: 12px;
+  display: inline-block;
+  margin-bottom: 6px;
+}
+.btn {
+  display: inline-block;
+  text-decoration: none;
+  color: white;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-weight: bold;
+}
+.btn-whatsapp { background-color: #25D366; }
+.btn-instagram { background: linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); }
